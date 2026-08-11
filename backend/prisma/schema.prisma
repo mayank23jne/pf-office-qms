@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  name      String
+  role      String   // 'SUPER_ADMIN', 'ADMIN', 'RECEPTION', 'COUNTER'
+  city      String?  // City location for Admins
+
+  adminId   Int?     // Parent Admin ID for employees (RECEPTION, COUNTER)
+  admin     User?    @relation("AdminEmployees", fields: [adminId], references: [id], onDelete: SetNull)
+  employees User[]   @relation("AdminEmployees")
+
+  counters  Counter[] @relation("AdminCounters")
+  issues    Issue[]   @relation("AdminIssues")
+
+  counterId Int?     @unique
+  Counter   Counter? @relation(fields: [counterId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Counter {
+  id             Int            @id @default(autoincrement())
+  name           String
+  tokenPrefix    String
+  status         String         @default("ACTIVE") // 'ACTIVE', 'INACTIVE'
+  isDeleted      Boolean        @default(false)
+
+  adminId        Int?
+  admin          User?          @relation("AdminCounters", fields: [adminId], references: [id], onDelete: SetNull)
+
+  issues         Issue[]
+  assignedIssues CounterIssue[]
+  tokens         Token[]
+  User           User?
+
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Issue {
+  id                 Int            @id @default(autoincrement())
+  name               String
+  status             String         @default("PENDING") // 'PENDING', 'IN_PROGRESS', 'RESOLVED'
+  isDeleted          Boolean        @default(false)
+
+  adminId            Int?
+  admin              User?          @relation("AdminIssues", fields: [adminId], references: [id], onDelete: SetNull)
+
+  counterId          Int?
+  counter            Counter?       @relation(fields: [counterId], references: [id], onDelete: SetNull)
+
+  counterAssignments CounterIssue[]
+  tokens             Token[]
+
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+}
+
+model CounterIssue {
+  id         Int      @id @default(autoincrement())
+  counterId  Int
+  counter    Counter  @relation(fields: [counterId], references: [id], onDelete: Cascade)
+
+  issueId    Int
+  issue      Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  assignedAt DateTime @default(now())
+
+  @@unique([counterId, issueId])
+}
+
+model Token {
+  id          Int      @id @default(autoincrement())
+  tokenNumber String
+  visitorName String
+  mobile      String?
+  uan         String?
+  status      String   @default("WAITING") // 'WAITING', 'SERVING', 'COMPLETED', 'SKIPPED'
+  otherIssue  String?
+  date        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  issueId     Int
+  issue       Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  counterId   Int
+  counter     Counter  @relation(fields: [counterId], references: [id], onDelete: Cascade)
+}

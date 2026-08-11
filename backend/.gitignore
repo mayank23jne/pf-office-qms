@@ -1,0 +1,19 @@
+# Node modules
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# SQLite Database / Local DB data
+prisma/dev.db
+*.db
+*.sqlite
+
+# Logs
+*.log
+logs/
