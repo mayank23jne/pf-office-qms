@@ -3,10 +3,8 @@
 // In production: Direct URL from VITE_API_URL or .env.production
 const API_URL = import.meta.env.VITE_API_URL || "/api";
 
-// Socket.IO URL - Use localhost in dev, production URL in build
-const SOCKET_URL = import.meta.env.DEV 
-  ? "https://pfapi.jyada.in" 
-  : "https://pfapi.jyada.in";
+// Socket.IO URL - Use environment variable or fallback to localhost in dev
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || (import.meta.env.DEV ? "http://localhost:5000" : "https://pfapi.jyada.in");
 
 export { SOCKET_URL };
 

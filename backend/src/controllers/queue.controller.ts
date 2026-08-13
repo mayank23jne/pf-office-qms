@@ -3,6 +3,25 @@ import { prisma, io } from "../index";
 
 const getTodayStr = () => new Date().toISOString().split("T")[0];
 
+const getEffectiveCounterId = async (req: Request): Promise<number | null> => {
+  const user = (req as any).user;
+  if (user?.counterId) return user.counterId;
+
+  const adminId = user?.adminId || user?.id || (await prisma.user.findFirst({
+    where: { username: 'admin', role: 'ADMIN' }
+  }))?.id;
+
+  const defaultCounter = await prisma.counter.findFirst({
+    where: {
+      isDeleted: false,
+      status: "ACTIVE",
+      ...(adminId ? { adminId } : {})
+    },
+    orderBy: { id: "asc" }
+  });
+  return defaultCounter ? defaultCounter.id : null;
+};
+
 const createTokenRecord = async (visitorName: string, mobile: string | undefined, uan: string | undefined, issueId: number, otherIssue?: string) => {
   const issue = await prisma.issue.findFirst({
     where: { id: issueId, isDeleted: false },
@@ -136,7 +155,7 @@ export const nextToken = async (req: Request, res: Response) => {
       return res.status(403).json({ error: "Only counter operators can call next token" });
     }
 
-    const counterId = user.counterId;
+    const counterId = await getEffectiveCounterId(req);
     if (!counterId) return res.status(400).json({ error: "No counter assigned to user" });
 
     const todayStr = getTodayStr();
@@ -174,8 +193,8 @@ export const nextToken = async (req: Request, res: Response) => {
 // Skip Current Token
 export const skipToken = async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
-    const counterId = user.counterId;
+    const counterId = await getEffectiveCounterId(req);
+    if (!counterId) return res.status(400).json({ error: "No counter found" });
 
     const currentToken = await prisma.token.findFirst({
       where: { counterId, status: "SERVING", date: getTodayStr() }
@@ -199,7 +218,7 @@ export const skipToken = async (req: Request, res: Response) => {
 // Recall Token
 export const recallToken = async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
+    const counterId = await getEffectiveCounterId(req);
     const { tokenId } = req.body;
 
     const token = await prisma.token.findUnique({
@@ -207,14 +226,16 @@ export const recallToken = async (req: Request, res: Response) => {
       include: { counter: true, issue: true }
     });
 
-    if (!token || token.counterId !== user.counterId) {
+    if (!token || (counterId && token.counterId !== counterId)) {
       return res.status(400).json({ error: "Invalid token or counter mismatch" });
     }
 
-    await prisma.token.updateMany({
-      where: { counterId: user.counterId, status: "SERVING", date: getTodayStr() },
-      data: { status: "COMPLETED" }
-    });
+    if (counterId) {
+      await prisma.token.updateMany({
+        where: { counterId, status: "SERVING", date: getTodayStr() },
+        data: { status: "COMPLETED" }
+      });
+    }
 
     const recalledToken = await prisma.token.update({
       where: { id: token.id },
@@ -234,9 +255,8 @@ export const recallToken = async (req: Request, res: Response) => {
 // Get Current Counter Queue (For Operator View)
 export const getCurrentQueue = async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
-    const counterId = user.counterId;
-    if (!counterId) return res.status(400).json({ error: "User has no assigned counter" });
+    const counterId = await getEffectiveCounterId(req);
+    if (!counterId) return res.status(400).json({ error: "No active counter found" });
 
     const todayStr = getTodayStr();
 
@@ -314,7 +334,16 @@ export const getActiveIssues = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
     const reqAdminId = req.query.adminId ? parseInt(req.query.adminId as string) : undefined;
-    const adminId = reqAdminId || (user ? (user.role === 'ADMIN' ? user.id : user.adminId) : undefined);
+    let adminId = reqAdminId || (user ? (user.role === 'ADMIN' ? user.id : user.adminId) : undefined);
+    if (!adminId) {
+      const mainAdmin = await prisma.user.findFirst({
+        where: { username: 'admin', role: 'ADMIN' }
+      }) || await prisma.user.findFirst({
+        where: { role: 'ADMIN' },
+        orderBy: { id: 'asc' }
+      });
+      adminId = mainAdmin?.id;
+    }
 
     const rawIssues = await prisma.issue.findMany({
       where: {
@@ -347,12 +376,24 @@ export const getTodayTokens = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
     const reqAdminId = req.query.adminId ? parseInt(req.query.adminId as string) : undefined;
-    const adminId = reqAdminId || (user ? (user.role === 'ADMIN' ? user.id : user.adminId) : undefined);
+    let adminId = reqAdminId || (user ? (user.role === 'ADMIN' ? user.id : user.adminId) : undefined);
+    if (!adminId) {
+      const mainAdmin = await prisma.user.findFirst({
+        where: { username: 'admin', role: 'ADMIN' }
+      }) || await prisma.user.findFirst({
+        where: { role: 'ADMIN' },
+        orderBy: { id: 'asc' }
+      });
+      adminId = mainAdmin?.id;
+    }
 
     let counterFilter: any = {};
     if (adminId) {
       const counters = await prisma.counter.findMany({
-        where: { adminId, isDeleted: false },
+        where: {
+          isDeleted: false,
+          adminId
+        },
         select: { id: true }
       });
       const counterIds = counters.map(c => c.id);
@@ -399,8 +440,7 @@ export const updateTokenStatus = async (req: Request, res: Response) => {
 // Counter Operator: Trigger explicit Token Announcement socket event
 export const announceToken = async (req: Request, res: Response) => {
   try {
-    const user = (req as any).user;
-    const counterId = user.counterId;
+    const counterId = await getEffectiveCounterId(req);
     const { tokenId } = req.body || {};
 
     let currentServing = null;

@@ -10,8 +10,6 @@ export const QRRegistration = () => {
   const [searchParams] = useSearchParams();
   const urlAdminId = searchParams.get('adminId') || '';
 
-  const [branches, setBranches] = useState<any[]>([]);
-  const [selectedBranchId, setSelectedBranchId] = useState<string>(urlAdminId);
   const [issues, setIssues] = useState<any[]>([]);
   const [visitorName, setVisitorName] = useState('');
   const [mobile, setMobile] = useState('');
@@ -31,28 +29,15 @@ export const QRRegistration = () => {
   const [showShareQR, setShowShareQR] = useState(false);
 
   useEffect(() => {
-    loadBranches();
-  }, []);
-
-  const loadBranches = async () => {
-    try {
-      const res = await fetchApi('/admin/branches');
-      setBranches(res.branches || []);
-    } catch (err) {
-      console.error("Failed to load branches:", err);
-    }
-  };
-
-  useEffect(() => {
     loadIssues();
     if (tokenId) {
       loadTokenPass(tokenId);
     }
-  }, [tokenId, selectedBranchId, urlAdminId]);
+  }, [tokenId, urlAdminId]);
 
   const loadIssues = async () => {
     try {
-      const targetAdminId = selectedBranchId || urlAdminId;
+      const targetAdminId = urlAdminId;
       const endpoint = targetAdminId ? `/queue/issues?adminId=${targetAdminId}` : '/queue/issues';
       const data = await fetchApi(endpoint);
       setIssues(data.issues || []);

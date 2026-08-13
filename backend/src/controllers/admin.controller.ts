@@ -3,19 +3,26 @@ import { prisma } from "../index";
 import bcrypt from "bcryptjs";
 
 // Helper function to extract effective adminId for filtering
-const getEffectiveAdminId = (req: Request): number | undefined => {
+const getEffectiveAdminId = async (req: Request): Promise<number | undefined> => {
   const user = (req as any).user;
-  if (!user) return undefined;
-  if (user.role === 'ADMIN') return user.id;
-  if (user.adminId) return user.adminId;
-  return undefined;
+  if (user) {
+    if (user.role === 'ADMIN') return user.id;
+    if (user.adminId) return user.adminId;
+  }
+  const mainAdmin = await prisma.user.findFirst({
+    where: { username: 'admin', role: 'ADMIN' }
+  }) || await prisma.user.findFirst({
+    where: { role: 'ADMIN' },
+    orderBy: { id: 'asc' }
+  });
+  return mainAdmin ? mainAdmin.id : undefined;
 };
 
 // --- Counter Master CRUD ---
 
 export const getCounters = async (req: Request, res: Response) => {
   try {
-    const adminId = getEffectiveAdminId(req);
+    const adminId = await getEffectiveAdminId(req);
 
     const counters = await prisma.counter.findMany({
       where: {
@@ -53,7 +60,7 @@ export const createCounter = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Token prefix is required" });
     }
 
-    const adminId = getEffectiveAdminId(req);
+    const adminId = await getEffectiveAdminId(req);
 
     const counter = await prisma.counter.create({
       data: {
@@ -120,7 +127,7 @@ export const deleteCounter = async (req: Request, res: Response) => {
 
 export const getIssues = async (req: Request, res: Response) => {
   try {
-    const adminId = getEffectiveAdminId(req);
+    const adminId = await getEffectiveAdminId(req);
 
     const issues = await prisma.issue.findMany({
       where: {
@@ -152,7 +159,7 @@ export const createIssue = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "PF Issue name is required" });
     }
 
-    const adminId = getEffectiveAdminId(req);
+    const adminId = await getEffectiveAdminId(req);
 
     const issue = await prisma.issue.create({
       data: {
@@ -278,7 +285,7 @@ export const getAssignedIssuesForCounter = async (req: Request, res: Response) =
 
 export const getUsers = async (req: Request, res: Response) => {
   try {
-    const adminId = getEffectiveAdminId(req);
+    const adminId = await getEffectiveAdminId(req);
 
     const users = await prisma.user.findMany({
       where: {
@@ -321,7 +328,7 @@ export const createUser = async (req: Request, res: Response) => {
       }
     }
 
-    const adminId = getEffectiveAdminId(req);
+    const adminId = await getEffectiveAdminId(req);
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
@@ -423,9 +430,8 @@ export const deleteUser = async (req: Request, res: Response) => {
 export const getStats = async (req: Request, res: Response) => {
   try {
     const todayStr = new Date().toISOString().split("T")[0];
-    const adminId = getEffectiveAdminId(req);
+    const adminId = await getEffectiveAdminId(req);
 
-    // Counter condition based on adminId
     const counterWhere = {
       isDeleted: false,
       status: "ACTIVE",
@@ -513,11 +519,10 @@ export const getPublicBranches = async (req: Request, res: Response) => {
 
 export const getDisplayData = async (req: Request, res: Response) => {
   try {
-    const todayStr = new Date().toISOString().split("T")[0];
     const reqAdminId = req.query.adminId ? parseInt(req.query.adminId as string) : undefined;
-    const adminId = reqAdminId || getEffectiveAdminId(req);
+    const adminId = reqAdminId || (await getEffectiveAdminId(req));
 
-    const allCounters = await prisma.counter.findMany({
+    const counters = await prisma.counter.findMany({
       where: {
         status: "ACTIVE",
         isDeleted: false,
@@ -526,24 +531,11 @@ export const getDisplayData = async (req: Request, res: Response) => {
       orderBy: { id: "asc" }
     });
 
-    // Deduplicate counters by name if no specific adminId is filtered
-    const seenNames = new Set<string>();
-    const counters = adminId
-      ? allCounters
-      : allCounters.filter((c) => {
-          if (seenNames.has(c.name)) {
-            return false;
-          }
-          seenNames.add(c.name);
-          return true;
-        });
-
     const displayData = await Promise.all(
       counters.map(async (counter) => {
         const currentServing = await prisma.token.findFirst({
           where: {
             counterId: counter.id,
-            date: todayStr,
             status: "SERVING"
           },
           orderBy: { updatedAt: "desc" }
@@ -552,7 +544,6 @@ export const getDisplayData = async (req: Request, res: Response) => {
         const waitingCount = await prisma.token.count({
           where: {
             counterId: counter.id,
-            date: todayStr,
             status: "WAITING"
           }
         });

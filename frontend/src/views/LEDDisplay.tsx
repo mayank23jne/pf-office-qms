@@ -8,8 +8,6 @@ export const LEDDisplay = () => {
   const [searchParams] = useSearchParams();
   const urlAdminId = searchParams.get('adminId') || '';
 
-  const [branches, setBranches] = useState<any[]>([]);
-  const [selectedBranchId, setSelectedBranchId] = useState<string>(urlAdminId);
   const [displayData, setDisplayData] = useState<any[]>([]);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [lastCallAnnouncement, setLastCallAnnouncement] = useState<string>('');
@@ -29,19 +27,6 @@ export const LEDDisplay = () => {
     activeTokenRef.current = activeAnnouncingToken;
   }, [activeAnnouncingToken]);
 
-  useEffect(() => {
-    loadBranches();
-  }, []);
-
-  const loadBranches = async () => {
-    try {
-      const res = await fetchApi('/admin/branches');
-      setBranches(res.branches || []);
-    } catch (err) {
-      console.error("Failed to load branches:", err);
-    }
-  };
- 
   useEffect(() => {
     loadDisplayData();
  
@@ -63,18 +48,20 @@ export const LEDDisplay = () => {
       loadDisplayData();
       if (data.token) {
         const newToken = data.token;
+        const isExplicitAnnounce = data.isAnnounce || data.isRecall;
         setAnnouncementQueue((prev) => {
-          // Ignore duplicate rapid announcement clicks for the exact same token
-          const isAlreadyInQueue = prev.some(
-            (item) => item.token?.id === newToken.id || item.token?.tokenNumber === newToken.tokenNumber
-          );
-          const isCurrentlyActive =
-            activeTokenRef.current?.id === newToken.id ||
-            activeTokenRef.current?.tokenNumber === newToken.tokenNumber;
+          if (!isExplicitAnnounce) {
+            const isAlreadyInQueue = prev.some(
+              (item) => item.token?.id === newToken.id || item.token?.tokenNumber === newToken.tokenNumber
+            );
+            const isCurrentlyActive =
+              activeTokenRef.current?.id === newToken.id ||
+              activeTokenRef.current?.tokenNumber === newToken.tokenNumber;
  
-          if (isAlreadyInQueue || isCurrentlyActive) {
-            console.log("Duplicate rapid announcement click ignored for token:", newToken.tokenNumber);
-            return prev;
+            if (isAlreadyInQueue || isCurrentlyActive) {
+              console.log("Duplicate rapid announcement click ignored for token:", newToken.tokenNumber);
+              return prev;
+            }
           }
           return [...prev, { token: newToken, queueId: Math.random() }];
         });
@@ -88,7 +75,7 @@ export const LEDDisplay = () => {
     return () => {
       socket.disconnect();
     };
-  }, [selectedBranchId, urlAdminId]);
+  }, [urlAdminId]);
  
   // Process Announcement Queue Sequentially
   useEffect(() => {
@@ -100,7 +87,7 @@ export const LEDDisplay = () => {
  
   const loadDisplayData = async () => {
     try {
-      const targetAdminId = selectedBranchId || urlAdminId;
+      const targetAdminId = urlAdminId;
       const endpoint = targetAdminId ? `/admin/display?adminId=${targetAdminId}` : '/admin/display';
       const data = await fetchApi(endpoint);
       const rawList = data.displayData || [];
@@ -157,18 +144,18 @@ export const LEDDisplay = () => {
       finished = true;
  
       const elapsed = Date.now() - startTime;
-      const minDisplayDuration = 10000; // Guaranteed minimum 4.5s display time
+      const minDisplayDuration = 4000; // 4s display duration
       const remainingTime = Math.max(0, minDisplayDuration - elapsed);
  
       setTimeout(() => {
         // Hide zoomed card / full screen overlay modal
         setActiveAnnouncingToken(null);
  
-        // Wait 2-second gap before starting next queued announcement
+        // Wait 500ms gap before starting next queued announcement
         setTimeout(() => {
           setIsSpeaking(false);
           setAnnouncementQueue((prev) => prev.slice(1));
-        }, 2000);
+        }, 500);
       }, remainingTime);
     };
  

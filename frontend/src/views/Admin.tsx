@@ -1155,12 +1155,12 @@ export const Admin = () => {
                   <input
                     type="text"
                     readOnly
-                    value={`${window.location.origin}/register-qr?adminId=${user.id || user.adminId || ''}`}
+                    value={`${window.location.origin}/register-qr`}
                     style={{ width: '100%', background: 'transparent', border: 'none', color: '#0f172a', fontWeight: 700, fontSize: '0.88rem', fontFamily: 'monospace', outline: 'none' }}
                   />
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(`${window.location.origin}/register-qr?adminId=${user.id || user.adminId || ''}`);
+                      navigator.clipboard.writeText(`${window.location.origin}/register-qr`);
                       setToast({ message: "Registration Link copied to clipboard!", type: 'success' });
                     }}
                     style={{ background: '#0f2b5c', border: 'none', color: 'white', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 700, flexShrink: 0 }}
@@ -1178,12 +1178,12 @@ export const Admin = () => {
                   <input
                     type="text"
                     readOnly
-                    value={`${window.location.origin}/display?adminId=${user.id || user.adminId || ''}`}
+                    value={`${window.location.origin}/display`}
                     style={{ width: '100%', background: 'transparent', border: 'none', color: '#0f172a', fontWeight: 700, fontSize: '0.88rem', fontFamily: 'monospace', outline: 'none' }}
                   />
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(`${window.location.origin}/display?adminId=${user.id || user.adminId || ''}`);
+                      navigator.clipboard.writeText(`${window.location.origin}/display`);
                       setToast({ message: "LED Display Link copied to clipboard!", type: 'success' });
                     }}
                     style={{ background: '#0f2b5c', border: 'none', color: 'white', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 700, flexShrink: 0 }}

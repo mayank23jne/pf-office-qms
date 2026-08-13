@@ -131,7 +131,7 @@ export const Reception = () => {
     }
   };
 
-  const publicQRUrl = `${window.location.protocol}//${window.location.host}/register-qr${user.adminId || user.id ? `?adminId=${user.adminId || user.id}` : ''}`;
+  const publicQRUrl = `${window.location.protocol}//${window.location.host}/register-qr`;
 
   // Filtering Logic
   const filteredTokens = todayTokens.filter((t) => {

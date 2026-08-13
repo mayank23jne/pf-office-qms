@@ -43,17 +43,13 @@ export const LandingPage = () => {
             icon={<QrCode size={20} style={{ color: "white" }} />}
             title="Self-Register"
             subtitle="Scan QR to get token"
-            onClick={() =>
-              navigate(`/register-qr${adminId ? `?adminId=${adminId}` : ""}`)
-            }
+            onClick={() => navigate('/register-qr')}
           />
           <ActionCard
             icon={<Monitor size={20} style={{ color: "#0f2b5c" }} />}
             title="Live Display"
             subtitle="View real-time counter status"
-            onClick={() =>
-              navigate(`/display${adminId ? `?adminId=${adminId}` : ""}`)
-            }
+            onClick={() => navigate('/display')}
           />
           {currentUser ? (
             <ActionCard

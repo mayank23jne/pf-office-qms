@@ -87,7 +87,7 @@ export const Header = () => {
               </Link>
 
               <Link
-                to={`/register-qr${currentUser && (currentUser.id || currentUser.adminId) ? `?adminId=${currentUser.id || currentUser.adminId}` : ''}`}
+                to="/register-qr"
                 className={`nav-link ${location.pathname === '/register-qr' ? 'active' : ''}`}
                 style={{ color: '#ffffff' }}
               >
@@ -95,7 +95,7 @@ export const Header = () => {
               </Link>
 
               <Link
-                to={`/display${currentUser && (currentUser.id || currentUser.adminId) ? `?adminId=${currentUser.id || currentUser.adminId}` : ''}`}
+                to="/display"
                 className={`nav-link ${location.pathname === '/display' ? 'active' : ''}`}
                 style={{ color: '#ffffff' }}
               >
@@ -173,14 +173,14 @@ export const Header = () => {
                 <Home size={18} /> Home
               </Link>
               <Link
-                to={`/register-qr${currentUser && (currentUser.id || currentUser.adminId) ? `?adminId=${currentUser.id || currentUser.adminId}` : ''}`}
+                to="/register-qr"
                 className={`mobile-nav-item ${location.pathname === '/register-qr' ? 'active' : ''}`}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <QrCode size={18} /> QR Self-Register
               </Link>
               <Link
-                to={`/display${currentUser && (currentUser.id || currentUser.adminId) ? `?adminId=${currentUser.id || currentUser.adminId}` : ''}`}
+                to="/display"
                 className={`mobile-nav-item ${location.pathname === '/display' ? 'active' : ''}`}
                 onClick={() => setMobileMenuOpen(false)}
               >
