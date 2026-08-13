@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, Printer, QrCode, Ticket, MapPin } from 'lucide-react';
+import { CheckCircle2, Printer, QrCode, Ticket } from 'lucide-react';
 import { fetchApi } from '../api';
 import { SearchableSelect } from '../components/SearchableSelect';
 
@@ -238,35 +238,7 @@ export const QRRegistration = () => {
         )}
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          {branches.length > 0 && (
-            <div>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: '#334155', marginBottom: '6px', fontWeight: 600 }}>
-                <MapPin size={15} style={{ color: '#1d4ed8' }} /> Select Office Branch / Location *
-              </label>
-              <select
-                value={selectedBranchId}
-                onChange={(e) => setSelectedBranchId(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  borderRadius: '8px',
-                  border: '1px solid #cbd5e1',
-                  background: '#ffffff',
-                  fontWeight: 700,
-                  color: '#0f172a',
-                  fontSize: '0.9rem',
-                  outline: 'none'
-                }}
-              >
-                <option value="">All Offices / Default Branch</option>
-                {branches.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name} ({b.city || 'Branch'})
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+
 
           <div>
             <label style={{ display: 'block', fontSize: '0.85rem', color: '#334155', marginBottom: '6px', fontWeight: 600 }}>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Volume2, VolumeX, Building2, Radio, BellRing, MapPin } from 'lucide-react';
+import { Volume2, VolumeX, Building2, Radio, BellRing } from 'lucide-react';
 import { io } from 'socket.io-client';
 import { fetchApi, SOCKET_URL } from '../api';
  
@@ -235,23 +235,7 @@ export const LEDDisplay = () => {
         </div>
  
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-          {branches.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#eff6ff', border: '1px solid #93c5fd', padding: '6px 14px', borderRadius: '30px' }}>
-              <MapPin size={15} style={{ color: '#1d4ed8' }} />
-              <select
-                value={selectedBranchId}
-                onChange={(e) => setSelectedBranchId(e.target.value)}
-                style={{ background: 'transparent', border: 'none', color: '#1d4ed8', fontWeight: 800, fontSize: '0.82rem', outline: 'none', cursor: 'pointer' }}
-              >
-                <option value="">All Offices / Branches</option>
-                {branches.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name} ({b.city || 'Branch'})
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+
 
           {lastCallAnnouncement && (
             <div style={{ background: '#fef3c7', border: '1px solid #fde68a', color: '#b45309', padding: '6px 14px', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px' }}>

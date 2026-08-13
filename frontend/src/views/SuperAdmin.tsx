@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Plus, Edit2, Trash2, RefreshCw, ShieldAlert, X, MapPin } from 'lucide-react';
+import { Users, Plus, Edit2, Trash2, RefreshCw, ShieldAlert, X, MapPin, Eye, EyeOff } from 'lucide-react';
 import { fetchApi } from '../api';
 import { Toast } from '../components/Toast';
 import { ConfirmModal } from '../components/ConfirmModal';
@@ -28,6 +28,7 @@ export const SuperAdmin = () => {
 
   // Admin Modal State
   const [showAdminModal, setShowAdminModal] = useState(false);
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [editingAdminId, setEditingAdminId] = useState<number | null>(null);
   const [adminForm, setAdminForm] = useState({
     username: '',
@@ -292,15 +293,37 @@ export const SuperAdmin = () => {
                   <label style={{ display: 'block', fontSize: '0.88rem', marginBottom: '6px', color: '#334155', fontWeight: 600 }}>
                     Password {editingAdminId ? "(Leave blank to keep current)" : "*"}
                   </label>
-                  <input
-                    type="password"
-                    className="input-field"
-                    placeholder="Enter password"
-                    value={adminForm.password}
-                    onChange={(e) => setAdminForm({ ...adminForm, password: e.target.value })}
-                    style={{ width: '100%', padding: '12px 16px', fontSize: '0.95rem', fontWeight: 600, background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', color: '#0f172a' }}
-                    required={!editingAdminId}
-                  />
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type={showAdminPassword ? 'text' : 'password'}
+                      className="input-field"
+                      placeholder="Enter password"
+                      value={adminForm.password}
+                      onChange={(e) => setAdminForm({ ...adminForm, password: e.target.value })}
+                      style={{ width: '100%', padding: '12px 40px 12px 16px', fontSize: '0.95rem', fontWeight: 600, background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', color: '#0f172a' }}
+                      required={!editingAdminId}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowAdminPassword(!showAdminPassword)}
+                      style={{
+                        position: 'absolute',
+                        right: '12px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: '#64748b',
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: 0
+                      }}
+                      tabIndex={-1}
+                    >
+                      {showAdminPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '10px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>

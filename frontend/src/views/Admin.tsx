@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Plus, Edit2, Trash2, RefreshCw, Layers, LayoutGrid, FileText, Link2, X } from 'lucide-react';
+import { Users, Plus, Edit2, Trash2, RefreshCw, Layers, LayoutGrid, FileText, Link2, X, Eye, EyeOff } from 'lucide-react';
 import { fetchApi } from '../api';
 import { Toast } from '../components/Toast';
 import { ConfirmModal } from '../components/ConfirmModal';
@@ -52,6 +52,7 @@ export const Admin = () => {
 
   // User Modal State
   const [showUserModal, setShowUserModal] = useState(false);
+  const [showUserPassword, setShowUserPassword] = useState(false);
   const [editingUserId, setEditingUserId] = useState<number | null>(null);
   const [userForm, setUserForm] = useState({
     username: '',
@@ -1074,15 +1075,37 @@ export const Admin = () => {
                 <label style={{ display: 'block', fontSize: '0.88rem', marginBottom: '6px', color: '#334155', fontWeight: 600 }}>
                   Password {editingUserId ? "(Leave blank to keep current)" : "*"}
                 </label>
-                <input
-                  type="password"
-                  className="input-field"
-                  placeholder="Enter password"
-                  value={userForm.password}
-                  onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
-                  style={{ width: '100%', padding: '12px 16px', fontSize: '0.95rem', fontWeight: 600, background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', color: '#0f172a' }}
-                  required={!editingUserId}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showUserPassword ? 'text' : 'password'}
+                    className="input-field"
+                    placeholder="Enter password"
+                    value={userForm.password}
+                    onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
+                    style={{ width: '100%', padding: '12px 40px 12px 16px', fontSize: '0.95rem', fontWeight: 600, background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', color: '#0f172a' }}
+                    required={!editingUserId}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowUserPassword(!showUserPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: '#64748b',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: 0
+                    }}
+                    tabIndex={-1}
+                  >
+                    {showUserPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
 
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '10px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
