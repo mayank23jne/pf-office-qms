@@ -18,4 +18,6 @@ export default defineConfig({
       },
     },
   },
+  // Copy .htaccess to dist folder during build
+  publicDir: 'public',
 })

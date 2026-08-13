@@ -7,7 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "seed": "tsx seed.ts",
+    "prod": "npm run build && npm start",
+    "cpanel-start": "node app.js"
   },
   "keywords": [],
   "author": "",

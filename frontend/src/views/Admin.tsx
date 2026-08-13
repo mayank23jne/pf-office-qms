@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Users, LogOut, Plus, Edit2, Trash2, RefreshCw, Layers, LayoutGrid, CheckCircle2, FileText, Link2, X } from 'lucide-react';
+import { Users, Plus, Edit2, Trash2, RefreshCw, Layers, LayoutGrid, FileText, Link2, X } from 'lucide-react';
 import { fetchApi } from '../api';
 import { Toast } from '../components/Toast';
 import { ConfirmModal } from '../components/ConfirmModal';
@@ -100,11 +100,11 @@ export const Admin = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem('token');
+  //   localStorage.removeItem('user');
+  //   navigate('/login');
+  // };
 
   // --- Counter Master Handlers ---
   const handleOpenCreateCounter = () => {

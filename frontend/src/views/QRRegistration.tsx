@@ -64,17 +64,17 @@ export const QRRegistration = () => {
     }
   };
 
-  const handleIssueChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value;
-    setSelectedIssueId(val);
-    const selectedObj = issues.find((i) => i.id.toString() === val);
-    if (selectedObj && (selectedObj.name.includes("Other") || selectedObj.name.includes("Custom"))) {
-      setIsOtherSelected(true);
-    } else {
-      setIsOtherSelected(false);
-      setOtherIssueText('');
-    }
-  };
+  // const handleIssueChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   const val = e.target.value;
+  //   setSelectedIssueId(val);
+  //   const selectedObj = issues.find((i) => i.id.toString() === val);
+  //   if (selectedObj && (selectedObj.name.includes("Other") || selectedObj.name.includes("Custom"))) {
+  //     setIsOtherSelected(true);
+  //   } else {
+  //     setIsOtherSelected(false);
+  //     setOtherIssueText('');
+  //   }
+  // };
 
   const loadTokenPass = async (id: string) => {
     try {

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../index";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/auth";
+import { logger } from "../utils/logger";
 
 export const login = async (req: Request, res: Response) => {
   try {

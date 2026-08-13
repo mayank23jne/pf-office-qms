@@ -493,8 +493,7 @@ export const getPublicBranches = async (req: Request, res: Response) => {
   try {
     const branches = await prisma.user.findMany({
       where: {
-        role: "ADMIN",
-        isDeleted: false
+        role: "ADMIN"
       },
       select: {
         id: true,

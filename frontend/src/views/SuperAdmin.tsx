@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Plus, Edit2, Trash2, LogOut, RefreshCw, ShieldAlert, CheckCircle2, X, MapPin } from 'lucide-react';
+import { Users, Plus, Edit2, Trash2, RefreshCw, ShieldAlert, X, MapPin } from 'lucide-react';
 import { fetchApi } from '../api';
 import { Toast } from '../components/Toast';
 import { ConfirmModal } from '../components/ConfirmModal';
@@ -71,11 +71,11 @@ export const SuperAdmin = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem('token');
+  //   localStorage.removeItem('user');
+  //   navigate('/login');
+  // };
 
   const handleOpenCreateAdmin = () => {
     setEditingAdminId(null);

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play, SkipForward, RotateCcw, Volume2, LogOut, UserCheck, Clock, Layers, FileText, CheckCircle2 } from 'lucide-react';
+import { Play, SkipForward, RotateCcw, Volume2, UserCheck, Clock, FileText } from 'lucide-react';
 import { io } from 'socket.io-client';
-import { fetchApi } from '../api';
+import { fetchApi, SOCKET_URL } from '../api';
 import { Toast } from '../components/Toast';
 
 export const Counter = () => {
@@ -24,7 +24,12 @@ export const Counter = () => {
     loadQueue();
 
     // Connect to WebSocket for real-time queue synchronization
-    const socket = io();
+    const socket = io(SOCKET_URL, {
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      reconnectionAttempts: 5
+    });
     socket.on('queue_updated', (data) => {
       if (!user.counterId || data.counterId === user.counterId) {
         loadQueue();
@@ -59,11 +64,11 @@ export const Counter = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem('token');
+  //   localStorage.removeItem('user');
+  //   navigate('/login');
+  // };
 
   const handleNext = async () => {
     try {

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Volume2, VolumeX, Building2, Radio, BellRing, MapPin } from 'lucide-react';
 import { io } from 'socket.io-client';
-import { fetchApi } from '../api';
+import { fetchApi, SOCKET_URL } from '../api';
  
 export const LEDDisplay = () => {
   const [searchParams] = useSearchParams();
@@ -52,7 +52,12 @@ export const LEDDisplay = () => {
       };
     }
  
-    const socket = io();
+    const socket = io(SOCKET_URL, {
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      reconnectionAttempts: 5
+    });
  
     socket.on('counter_next', (data) => {
       loadDisplayData();
