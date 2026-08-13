@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, QrCode, LogOut, Printer, Search, Ticket, ChevronLeft, ChevronRight } from 'lucide-react';
+import { User, Printer, Search, Ticket, ChevronLeft, ChevronRight } from 'lucide-react';
 import { fetchApi } from '../api';
 import { SearchableSelect } from '../components/SearchableSelect';
 
@@ -58,23 +58,23 @@ export const Reception = () => {
     }
   };
 
-  const handleIssueChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value;
-    setSelectedIssueId(val);
-    const selectedObj = issues.find((i) => i.id.toString() === val);
-    if (selectedObj && (selectedObj.name.includes("Other") || selectedObj.name.includes("Custom"))) {
-      setIsOtherSelected(true);
-    } else {
-      setIsOtherSelected(false);
-      setOtherIssueText('');
-    }
-  };
+  // const handleIssueChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   const val = e.target.value;
+  //   setSelectedIssueId(val);
+  //   const selectedObj = issues.find((i) => i.id.toString() === val);
+  //   if (selectedObj && (selectedObj.name.includes("Other") || selectedObj.name.includes("Custom"))) {
+  //     setIsOtherSelected(true);
+  //   } else {
+  //     setIsOtherSelected(false);
+  //     setOtherIssueText('');
+  //   }
+  // };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem('token');
+  //   localStorage.removeItem('user');
+  //   navigate('/login');
+  // };
 
   const handleGenerateToken = async (e: React.FormEvent) => {
     e.preventDefault();
